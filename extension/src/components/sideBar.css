@@ -1,0 +1,102 @@
+/* https://developer.mozilla.org/zh-CN/docs/Web/CSS/@font-face */
+
+@font-face {
+  font-family: 'Dela Gothic One';
+  src: url('/fonts/DelaGothicOne-Regular.ttf') format('truetype');
+}
+
+.kickyouads-container {
+  display: flex;
+  flex-direction: column;
+  width: 340px;
+  height: 100vh;
+  background-color: #FFFFFF;
+  margin: 10px;
+}
+
+.kickyouads-header {
+  display: flex;
+  margin: 0;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-title {
+  display: flex;
+  margin: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo img{
+  margin: 0;
+  width: 35px;
+  height: auto;
+  border-radius: 5px;
+}
+
+.title {
+  font-family: 'Dela Gothic One', sans-serif;
+  font-size: 15px;
+}
+
+.settings-btn,
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.tab-switch {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+  height: 40px;
+  margin: 20px auto;
+  padding: 0;
+  background: #F6F2F3;
+  border-radius: 52px;
+  overflow: hidden;
+}
+
+.tab {
+  /* 我願意把所有剩下的空間，平均分給兄弟元素。 */
+  display: flex;                
+  align-items: center;          
+  justify-content: center;       
+  flex: 1; 
+  text-align: center;
+  height: 40px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #3e3e3e;
+  border-radius: 52px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  z-index: 1;
+}
+
+
+.tab-label {
+  /* line-height: 1;                可以確保文字只佔文字本身高度，不額外增加上下空白 */
+  display: inline-block;         /* 讓 <span> 可以使用 width/height、margin/padding 的排版控制能力 預設的 <span> 是 display: inline，這種情況下： 無法設 width / height */
+}
+
+.tab-slider {
+  position: absolute;
+  top: 70px;
+  left: 8px;
+  width: calc(50% - 10px); /* 每個 tab 寬度的一半 */
+  height: 40px;
+  border-radius: 52px;
+  background: #fbcbec;
+  box-shadow: 0 2px 12px 4px rgba(255, 153, 253, 0.34);
+  transition: transform 0.3s ease;
+  z-index: 0;
+}
+
+/* 讓滑塊移動到右側 */
+.tab-slider.mode {
+  transform: translateX(100%);
+}

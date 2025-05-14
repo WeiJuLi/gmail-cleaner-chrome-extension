@@ -1,0 +1,27 @@
+{
+    "name": "Kick Your Ads!",
+    "description": "Base Level Extension",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": "icons/K.png"
+    },
+    "host_permissions": [
+      "https://mail.google.com/*"
+    ],
+    "content_scripts": [
+      {
+        "matches": ["https://mail.google.com/*"],
+        "js": ["src/contentScript.tsx"],   
+        "run_at": "document_idle"
+      }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["assets/*", "icons/*", "fonts/*"],
+            "matches": ["https://mail.google.com/*"]
+        }
+    ]
+  }
+

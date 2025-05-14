@@ -1,0 +1,9 @@
+.subscriptions-tab{
+    display: flex;
+    flex-direction: column;
+}
+
+.search-bar {
+    width:90%;
+    height: 26px;
+}
