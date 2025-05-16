@@ -8,10 +8,11 @@
 .kickyouads-container {
   display: flex;
   flex-direction: column;
-  width: 340px;
+  width: 320px;
   height: 100vh;
   background-color: #FFFFFF;
-  margin: 10px;
+  margin: 20px;
+  /* border: 2px solid rgba(255, 153, 253, 0.34); */
 }
 
 .kickyouads-header {
@@ -40,6 +41,10 @@
   font-size: 15px;
 }
 
+.settings-close-btn {
+  margin: 0;
+}
+
 .settings-btn,
 .close-btn {
   background: none;
@@ -53,11 +58,10 @@
   justify-content: space-evenly;
   width: 100%;
   height: 40px;
-  margin: 20px auto;
+  margin: 20px 0;
   padding: 0;
   background: #F6F2F3;
   border-radius: 52px;
-  overflow: hidden;
 }
 
 .tab {
@@ -85,9 +89,9 @@
 
 .tab-slider {
   position: absolute;
-  top: 70px;
-  left: 8px;
-  width: calc(50% - 10px); /* 每個 tab 寬度的一半 */
+  top: 80px;
+  left: 20px;
+  width: calc(50% - 20px); /* 每個 tab 寬度的一半 */
   height: 40px;
   border-radius: 52px;
   background: #fbcbec;
@@ -99,4 +103,49 @@
 /* 讓滑塊移動到右側 */
 .tab-slider.mode {
   transform: translateX(100%);
+}
+
+.tab-content {
+  height: 500px;
+  /* border: 2px solid rgba(255, 153, 253, 0.34); */
+}
+
+/* SubscriptionItem.css */
+
+.subscription-item {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 15px;
+  padding: 12px;
+  margin: 10px 0;
+  box-shadow: 0px 2px 4px 0px rgba(66, 66, 66, 0.1);
+}
+
+.sender-icon img {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-right: 12px;
+}
+
+.sender-info {
+  flex-grow: 1;
+}
+
+.sender-name {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.sender-email {
+  font-size: 14px;
+  color: #666;
+}
+
+.email-count {
+  font-weight: 600;
+  font-size: 14px;
+  margin-right: 12px;
 }
