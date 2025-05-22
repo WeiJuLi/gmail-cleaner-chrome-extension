@@ -12,7 +12,7 @@ Kick Your Ads is a Chrome extension designed to help users manage Gmail promotio
 
 ## 2. System Design
 
-```mermaid flowchart TB
+```mermaid
 flowchart TB
 
 %% CLIENT
@@ -28,7 +28,7 @@ end
 
 
 %% API GATEWAY
-subgraph API [API Layer]
+subgraph API [API Layer - Server side]
     AGW[API Gateway]
 end
 
