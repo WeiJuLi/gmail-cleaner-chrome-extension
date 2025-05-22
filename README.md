@@ -23,6 +23,10 @@ subgraph CLIENT [Chrome Extension]
     CE4[OAuth Login via Google]
 end
 
+%% Google OAuth 
+
+
+
 %% API GATEWAY
 subgraph API [API Layer]
     AGW[API Gateway]
@@ -56,6 +60,16 @@ end
 
 %% CLIENT to API
 CLIENT --> API
+CE4 -->|Open Auth URL| GGL[Google OAuth 2.0 Server]
+
+%% Google OAuth 2.0 
+  GGL -->|Redirect with code| CE_CALLBACK[Redirect URI - Front-End or API Gateway]
+  CE_CALLBACK -->|POST auth code| API
+  API --> OAUTH[OAuth Service]
+  OAUTH -->|Exchange Code| GGL_TOKEN[Google Token Endpoint]
+  GGL_TOKEN -->|Access + Refresh Token| OAUTH
+  OAUTH -->|Save to DynamoDB| DATA 
+
 
 %% %% API to Gmail + Messaging
 AGW --> MSG
@@ -66,6 +80,7 @@ MSG --> SVC
 %% %% Services to GmailAPI
 S1 --> GAPIL
 S2 --> GAPIL
+S3 --> GAPIL
 
 %% %% Cache / DB to Services
 DATA --> SVC
