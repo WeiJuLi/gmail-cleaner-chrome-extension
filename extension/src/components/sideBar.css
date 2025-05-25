@@ -89,7 +89,7 @@
 
 .tab-slider {
   position: absolute;
-  top: 80px;
+  top: 74px;   /* 調整位置到 74px，因為我加入 tailwindcss 套件，所以需要調整位置 */
   left: 20px;
   width: calc(50% - 20px); /* 每個 tab 寬度的一半 */
   height: 40px;
