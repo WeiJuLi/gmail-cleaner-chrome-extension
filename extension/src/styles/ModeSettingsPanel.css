@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --color-shadow: #424242;
+  --color-background: #faf9f8;
+  --color-heading: #3d2c26;
+  --color-paragraph: #b0aca9;
+}
+
+.mode-settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .mode-settings-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+
+  .mode-1, .mode-2, .mode-3 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #faf9f8;
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 4px 16px 0 var(--color-shadow) 0.06;
+    padding: 0.5rem 1.5rem 0.5rem 1.5rem; /* 上, 右, 下, 左 */
+    min-height: 110px;
+    margin-bottom: 0;
+  }
+  
+  .mode-1 h2, .mode-2 h2, .mode-3 h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 15px;
+    font-weight: bold;
+    color: #3d2c26;
+  }
+  
+  .mode-1 p, .mode-2 p, .mode-3 p {
+    margin: 0;
+    color: #b0aca9;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .mode-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }

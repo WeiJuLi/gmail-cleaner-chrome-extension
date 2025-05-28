@@ -1,0 +1,8 @@
+/* 只安裝 tailwindcss 套件還不夠，還必須在全域 CSS 檔案中引入 Tailwind 的指令 */
+
+/* 引入 Tailwind 的指令 */
+/* @import "tailwindcss"; */
+
+/* @tailwind base; */
+@tailwind components;
+@tailwind utilities;

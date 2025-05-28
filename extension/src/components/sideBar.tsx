@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './sideBar.css';
 import SubscriptionsPanel from './SubscriptionsPanel';
-//import ModeSettingsPanel from './ModeSettingsPanel';
+import ModeSettingsPanel from './ModeSettingsPanel';
 
 // This is a reusable function to load your Custom Font 
 // format = 'truetype' 參數的預設值
@@ -79,7 +79,7 @@ const Sidebar: React.FC = () => {
       {/* Row 3 */}
       <div className="tab-content">
         {activeTab === 'subscriptions' && <SubscriptionsPanel/>}
-        {activeTab === 'mode'}
+        {activeTab === 'mode' && <ModeSettingsPanel/>}
       </div>
 
     </div>
