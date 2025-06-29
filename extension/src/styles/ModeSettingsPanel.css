@@ -21,20 +21,34 @@
 
   .mode-1, .mode-2, .mode-3 {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: flex-start;
     background: #faf9f8;
     backdrop-filter: blur(10px);
     border-radius: 20px;
     box-shadow: 0 4px 16px 0 var(--color-shadow) 0.06;
-    padding: 0.5rem 1.5rem 0.5rem 1.5rem; /* 上, 右, 下, 左 */
+    padding: 0.5rem 1.5rem 0.5rem 1.5rem;
     min-height: 110px;
     margin-bottom: 0;
   }
   
+  .mode-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .mode-1-extra {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 2px;
+  }
+  
   .mode-1 h2, .mode-2 h2, .mode-3 h2 {
     margin: 0 0 0.5rem 0;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: bold;
     color: #3d2c26;
   }
@@ -42,7 +56,7 @@
   .mode-1 p, .mode-2 p, .mode-3 p {
     margin: 0;
     color: #b0aca9;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
   }
   
@@ -50,4 +64,23 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .add-email-list-btn {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffb6e6;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .email-input-row input {
+    font-size: 15px;
+  }
+
+  .email-list-item {
+    font-size: 16px;
+    color: #aaa;
+    font-weight: 500;
+    margin-bottom: 2px;
   }
