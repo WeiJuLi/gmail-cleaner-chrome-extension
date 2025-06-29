@@ -6,7 +6,6 @@ const targetNode: HTMLElement = document.body;
 console.log("[KickYouAds] contentScript.tsx injected and running");
 
 
-
 // 2. 觀察選項：childList 需要觀察子節點，也要觀察子節點的子樹 subtree
 const config: MutationObserverInit = {
   childList: true, 
