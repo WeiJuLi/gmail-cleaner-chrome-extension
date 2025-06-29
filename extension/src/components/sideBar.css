@@ -53,6 +53,22 @@
   cursor: pointer;
 }
 
+
+.login-section {
+  padding: 1rem;
+  text-align: center;
+}
+.login-btn {
+  padding: 8px 16px;
+  background-color: #4285F4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
 .tab-switch {
   display: flex;
   justify-content: space-evenly;
