@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Popup - Kick Your Ads</title>
+    <style>
+        body {
+            width: 300px;
+            margin: 20px;
+            font-family: sans-serif;
+        }
+        .popup-container {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h2>測試 Popup 功能</h2>
+    <p>這個頁面可以讓你在瀏覽器中直接測試 popup 功能，而不需要依賴 Chrome 擴充功能。</p>
+    
+    <div class="popup-container">
+        <div id="root"></div>
+    </div>
+
+    <!-- 模擬 Chrome Extension APIs -->
+    <script>
+        // 模擬 Chrome APIs（用於測試）
+        window.chrome = {
+            storage: {
+                local: {
+                    set: (data, callback) => {
+                        localStorage.setItem('gmail_auth_data', JSON.stringify(data.gmail_auth_data));
+                        callback && callback();
+                    },
+                    get: (keys, callback) => {
+                        const data = {};
+                        if (Array.isArray(keys)) {
+                            keys.forEach(key => {
+                                const value = localStorage.getItem(key);
+                                data[key] = value ? JSON.parse(value) : null;
+                            });
+                        }
+                        callback && callback(data);
+                    },
+                    remove: (keys, callback) => {
+                        if (Array.isArray(keys)) {
+                            keys.forEach(key => localStorage.removeItem(key));
+                        }
+                        callback && callback();
+                    }
+                }
+            },
+            identity: {
+                launchWebAuthFlow: (options, callback) => {
+                    // 模擬 OAuth 流程
+                    console.log('模擬 OAuth 流程:', options);
+                    
+                    // 模擬使用者取消
+                    if (Math.random() > 0.7) {
+                        chrome.runtime.lastError = { message: 'User cancelled' };
+                        callback && callback(null);
+                        return;
+                    }
+                    
+                    // 模擬成功的 OAuth 回應
+                    const mockToken = 'mock_access_token_' + Date.now();
+                    const responseUrl = `${options.url}#access_token=${mockToken}&token_type=Bearer&expires_in=3600`;
+                    
+                    setTimeout(() => {
+                        callback && callback(responseUrl);
+                    }, 1000);
+                }
+            },
+            runtime: {
+                lastError: null
+            }
+        };
+        
+        // 模擬 fetch（用於測試）
+        const originalFetch = window.fetch;
+        window.fetch = (url, options) => {
+            if (url.includes('googleapis.com/oauth2/v2/userinfo')) {
+                // 模擬 Google UserInfo API 回應
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        id: '123456789',
+                        email: 'test@gmail.com',
+                        verified_email: true,
+                        name: '測試使用者',
+                        given_name: '測試',
+                        family_name: '使用者',
+                        picture: 'https://via.placeholder.com/40',
+                        locale: 'zh-TW'
+                    })
+                });
+            }
+            return originalFetch(url, options);
+        };
+    </script>
+
+    <!-- 載入 React 和你的 popup 程式碼 -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- 你的 TypeScript 程式碼（轉換為 JavaScript） -->
+    <script type="text/babel">
+        // 這裡我們需要把你的 TypeScript 程式碼轉換為 JavaScript
+        // 由於瀏覽器不能直接執行 TypeScript，我們先用簡化版本測試
+        
+        const { useState, useEffect } = React;
+        
+        // 簡化版的認證狀態檢查
+        const checkAuthStatus = async () => {
+            return new Promise((resolve) => {
+                chrome.storage.local.get(['gmail_auth_data'], (result) => {
+                    const authData = result.gmail_auth_data;
+                    if (authData && authData.expires_at > Date.now()) {
+                        resolve({
+                            email: authData.user_email,
+                            name: authData.user_name || 'Test User',
+                            picture: authData.avatar_url
+                        });
+                    } else {
+                        resolve(null);
+                    }
+                });
+            });
+        };
+        
+        // 簡化版的登入流程
+        const startOAuthFlow = async () => {
+            return new Promise((resolve, reject) => {
+                const authUrl = 'https://accounts.google.com/oauth/authorize?client_id=test';
+                
+                chrome.identity.launchWebAuthFlow({
+                    url: authUrl,
+                    interactive: true
+                }, (responseUrl) => {
+                    if (chrome.runtime.lastError || !responseUrl) {
+                        reject(new Error('OAuth cancelled'));
+                        return;
+                    }
+                    
+                    // 模擬解析 token 和使用者資訊
+                    const authData = {
+                        access_token: 'mock_token',
+                        expires_at: Date.now() + 3600000,
+                        user_email: 'test@gmail.com',
+                        user_name: '測試使用者',
+                        avatar_url: 'https://via.placeholder.com/40'
+                    };
+                    
+                    chrome.storage.local.set({ gmail_auth_data: authData }, () => {
+                        resolve(authData);
+                    });
+                });
+            });
+        };
+        
+        // 簡化版的登出
+        const logout = async () => {
+            return new Promise((resolve) => {
+                chrome.storage.local.remove(['gmail_auth_data'], () => {
+                    resolve(true);
+                });
+            });
+        };
+        
+        // 主要 App 元件
+        const App = () => {
+            const [authState, setAuthState] = useState('loading');
+            const [userInfo, setUserInfo] = useState(null);
+            const [isLoggingIn, setIsLoggingIn] = useState(false);
+            const [authError, setAuthError] = useState(null);
+            
+            useEffect(() => {
+                checkInitialAuthStatus();
+            }, []);
+            
+            const checkInitialAuthStatus = async () => {
+                try {
+                    setAuthState('loading');
+                    const user = await checkAuthStatus();
+                    
+                    if (user) {
+                        setUserInfo(user);
+                        setAuthState('authenticated');
+                    } else {
+                        setAuthState('unauthenticated');
+                    }
+                } catch (error) {
+                    console.error('檢查認證狀態失敗:', error);
+                    setAuthState('unauthenticated');
+                }
+            };
+            
+            const handleLogin = async () => {
+                try {
+                    setIsLoggingIn(true);
+                    setAuthError(null);
+                    
+                    const authData = await startOAuthFlow();
+                    
+                    const user = {
+                        email: authData.user_email,
+                        name: authData.user_name || 'Unknown User',
+                        picture: authData.avatar_url
+                    };
+                    
+                    setUserInfo(user);
+                    setAuthState('authenticated');
+                } catch (error) {
+                    console.error('登入失敗:', error);
+                    setAuthError('登入失敗，請稍後再試');
+                    setAuthState('unauthenticated');
+                } finally {
+                    setIsLoggingIn(false);
+                }
+            };
+            
+            const handleLogout = async () => {
+                try {
+                    await logout();
+                    setUserInfo(null);
+                    setAuthState('unauthenticated');
+                    setAuthError(null);
+                } catch (error) {
+                    console.error('登出失敗:', error);
+                    setAuthError('登出時發生錯誤');
+                }
+            };
+            
+            const clearError = () => {
+                setAuthError(null);
+            };
+            
+            // 載入中的 UI
+            if (authState === 'loading') {
+                return React.createElement('div', {
+                    style: { padding: '16px', width: '300px', fontFamily: 'sans-serif' }
+                }, React.createElement('div', {
+                    style: { textAlign: 'center', padding: '20px' }
+                }, '檢查登入狀態...'));
+            }
+            
+            // 未登入狀態的 UI
+            if (authState === 'unauthenticated') {
+                return React.createElement('div', {
+                    style: { padding: '16px', width: '300px', fontFamily: 'sans-serif' }
+                }, [
+                    React.createElement('div', { 
+                        style: { textAlign: 'center' },
+                        key: 'main'
+                    }, [
+                        React.createElement('h2', { 
+                            style: { color: '#333', marginBottom: '10px' },
+                            key: 'title'
+                        }, 'Kick Your Ads'),
+                        React.createElement('p', { 
+                            style: { color: '#666', marginBottom: '20px', fontSize: '14px' },
+                            key: 'subtitle'
+                        }, 'Gmail 廣告信件智慧管理工具'),
+                        
+                        authError && React.createElement('div', {
+                            style: { 
+                                backgroundColor: '#ffebee', 
+                                border: '1px solid #f44336',
+                                borderRadius: '4px',
+                                padding: '8px',
+                                marginBottom: '15px',
+                                fontSize: '14px',
+                                color: '#d32f2f'
+                            },
+                            key: 'error'
+                        }, [
+                            authError,
+                            React.createElement('button', {
+                                onClick: clearError,
+                                style: { 
+                                    float: 'right', 
+                                    background: 'none', 
+                                    border: 'none', 
+                                    color: '#d32f2f',
+                                    cursor: 'pointer',
+                                    fontSize: '16px'
+                                },
+                                key: 'close'
+                            }, '×')
+                        ]),
+                        
+                        React.createElement('button', {
+                            onClick: handleLogin,
+                            disabled: isLoggingIn,
+                            style: {
+                                width: '100%',
+                                padding: '12px',
+                                backgroundColor: isLoggingIn ? '#ccc' : '#4285f4',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '16px',
+                                cursor: isLoggingIn ? 'not-allowed' : 'pointer'
+                            },
+                            key: 'login-btn'
+                        }, isLoggingIn ? '登入中...' : '🔐 登入 Google 帳號'),
+                        
+                        React.createElement('p', {
+                            style: { fontSize: '12px', color: '#999', marginTop: '15px', lineHeight: '1.4' },
+                            key: 'notice'
+                        }, '需要登入 Google 帳號以使用 Gmail API')
+                    ])
+                ]);
+            }
+            
+            // 已登入狀態的 UI
+            if (authState === 'authenticated' && userInfo) {
+                return React.createElement('div', {
+                    style: { padding: '16px', width: '300px', fontFamily: 'sans-serif' }
+                }, [
+                    React.createElement('div', {
+                        style: { 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            marginBottom: '15px',
+                            padding: '10px',
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: '8px'
+                        },
+                        key: 'user-info'
+                    }, [
+                        userInfo.picture && React.createElement('img', {
+                            src: userInfo.picture,
+                            alt: 'User Avatar',
+                            style: { 
+                                width: '40px', 
+                                height: '40px', 
+                                borderRadius: '50%', 
+                                marginRight: '10px' 
+                            },
+                            key: 'avatar'
+                        }),
+                        React.createElement('div', { 
+                            style: { flex: 1 },
+                            key: 'user-details'
+                        }, [
+                            React.createElement('p', {
+                                style: { 
+                                    margin: 0, 
+                                    fontWeight: 'bold', 
+                                    fontSize: '14px',
+                                    color: '#333'
+                                },
+                                key: 'name'
+                            }, userInfo.name),
+                            React.createElement('p', {
+                                style: { 
+                                    margin: 0, 
+                                    fontSize: '12px', 
+                                    color: '#666'
+                                },
+                                key: 'email'
+                            }, userInfo.email)
+                        ]),
+                        React.createElement('button', {
+                            onClick: handleLogout,
+                            style: {
+                                padding: '4px 8px',
+                                backgroundColor: '#fff',
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                cursor: 'pointer',
+                                color: '#666'
+                            },
+                            key: 'logout-btn'
+                        }, '登出')
+                    ]),
+                    
+                    React.createElement('h2', { 
+                        style: { margin: '0 0 10px 0', color: '#333' },
+                        key: 'main-title'
+                    }, 'Kick Your Ads'),
+                    React.createElement('p', { 
+                        style: { margin: '0 0 15px 0', color: '#666' },
+                        key: 'status'
+                    }, '你有 23 封 來自 Amazon 的廣告信。'),
+                    
+                    React.createElement('div', {
+                        style: { 
+                            marginTop: '15px', 
+                            padding: '8px', 
+                            backgroundColor: '#e8f5e8',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            color: '#4caf50',
+                            textAlign: 'center'
+                        },
+                        key: 'connected'
+                    }, '✓ 已連接到 Gmail API')
+                ]);
+            }
+            
+            return null;
+        };
+        
+        // 渲染 App
+        ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    </script>
+</body>
+</html> 

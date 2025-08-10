@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail API 測試頁面 (瀏覽器版本)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1557b0;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Gmail API 測試工具 (瀏覽器版本)</h1>
+        
+        <div class="info">
+            <strong>ℹ️ 注意：</strong>此頁面僅用於測試功能邏輯，無法在普通瀏覽器中存取真實的 Gmail API。
+            要進行實際測試，請在 Chrome Extension 環境中使用。<br><br>
+            <strong>實際測試步驟：</strong><br>
+            1. 在 Chrome 載入你的擴充功能<br>
+            2. 確保已完成 OAuth 登入<br>
+            3. 在 Extension 的 console 中執行測試腳本
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Chrome Extension 環境檢查</h3>
+            <p>檢查是否在 Chrome Extension 環境中運行</p>
+            <button onclick="checkExtensionEnvironment()">檢查環境</button>
+            <div id="env-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 測試腳本生成</h3>
+            <p>生成可以在 Chrome Extension console 中執行的測試腳本</p>
+            <button onclick="generateTestScript()">生成測試腳本</button>
+            <button onclick="copyTestScript()">複製到剪貼板</button>
+            <div id="script-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🛠️ API 功能模擬</h3>
+            <p>模擬 API 功能邏輯（不會進行實際 API 呼叫）</p>
+            <button onclick="simulateTokenCheck()">模擬 Token 檢查</button>
+            <button onclick="simulateApiCall()">模擬 API 呼叫</button>
+            <button onclick="simulateEmailProcessing()">模擬信件處理</button>
+            <div id="simulation-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 檢查 Chrome Extension 環境
+        function checkExtensionEnvironment() {
+            const resultDiv = document.getElementById('env-result');
+            resultDiv.style.display = 'block';
+
+            const checks = {
+                isChromeExtension: typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id,
+                hasStorageAPI: typeof chrome !== 'undefined' && chrome.storage,
+                isHTTPS: location.protocol === 'https:',
+                origin: location.origin,
+                userAgent: navigator.userAgent.includes('Chrome')
+            };
+
+            const isExtensionEnv = checks.isChromeExtension;
+            
+            resultDiv.innerHTML = `<span class="status ${isExtensionEnv ? 'success' : 'error'}">${isExtensionEnv ? 'EXTENSION ENV' : 'BROWSER ENV'}</span>\n${JSON.stringify(checks, null, 2)}`;
+            
+            if (!isExtensionEnv) {
+                resultDiv.innerHTML += '\n\n⚠️ 目前在普通瀏覽器環境中，無法存取 Chrome Extension API。';
+            }
+        }
+
+        // 生成測試腳本
+        function generateTestScript() {
+            const resultDiv = document.getElementById('script-result');
+            resultDiv.style.display = 'block';
+
+            const testScript = `
+// Gmail API 測試腳本 - 在 Chrome Extension Console 中執行
+console.log('🚀 開始 Gmail API 測試...');
+
+async function runGmailApiTest() {
+    try {
+        // 1. 檢查 Chrome Extension 環境
+        if (typeof chrome === 'undefined' || !chrome.runtime) {
+            throw new Error('請在 Chrome Extension 環境中執行此腳本');
+        }
+
+        // 2. 檢查 Storage API
+        if (!chrome.storage || !chrome.storage.local) {
+            throw new Error('Chrome Storage API 不可用');
+        }
+
+        // 3. 檢查 Token
+        console.log('📋 檢查 OAuth Token...');
+        const tokenKeys = ['gmail_access_token', 'gmail_refresh_token', 'gmail_token_expires_at'];
+        
+        chrome.storage.local.get(tokenKeys, (result) => {
+            console.log('Token 檢查結果:', result);
+            
+            if (result.gmail_access_token) {
+                const expiresAt = parseInt(result.gmail_token_expires_at);
+                const now = Date.now();
+                const isExpired = expiresAt < now;
+                
+                console.log(\`Token 狀態: \${isExpired ? '❌ 已過期' : '✅ 有效'}\`);
+                console.log(\`過期時間: \${new Date(expiresAt).toLocaleString('zh-TW')}\`);
+                
+                if (!isExpired) {
+                    console.log('✅ Token 有效，可以進行 API 測試');
+                    testGmailApiCall(result.gmail_access_token);
+                } else {
+                    console.log('❌ Token 已過期，需要重新登入');
+                }
+            } else {
+                console.log('❌ 未找到 Token，請先完成 OAuth 登入');
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ 測試失敗:', error.message);
+    }
+}
+
+// 測試 Gmail API 呼叫
+async function testGmailApiCall(accessToken) {
+    try {
+        console.log('📧 測試 Gmail API 呼叫...');
+        
+        const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=5', {
+            headers: {
+                'Authorization': \`Bearer \${accessToken}\`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Gmail API 呼叫成功!');
+            console.log(\`找到 \${data.messages?.length || 0} 封信件\`);
+            
+            if (data.messages && data.messages.length > 0) {
+                // 測試取得第一封信件的詳情
+                testEmailDetails(accessToken, data.messages[0].id);
+            }
+        } else {
+            const errorData = await response.json();
+            console.error('❌ Gmail API 呼叫失敗:', response.status, errorData);
+        }
+    } catch (error) {
+        console.error('❌ API 呼叫錯誤:', error.message);
+    }
+}
+
+// 測試信件詳情
+async function testEmailDetails(accessToken, messageId) {
+    try {
+        console.log('📄 測試信件詳情取得...');
+        
+        const response = await fetch(\`https://gmail.googleapis.com/gmail/v1/users/me/messages/\${messageId}\`, {
+            headers: {
+                'Authorization': \`Bearer \${accessToken}\`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const message = await response.json();
+            console.log('✅ 信件詳情取得成功!');
+            
+            // 解析基本資訊
+            const headers = message.payload?.headers || [];
+            const subject = headers.find(h => h.name.toLowerCase() === 'subject')?.value || 'No subject';
+            const from = headers.find(h => h.name.toLowerCase() === 'from')?.value || 'Unknown sender';
+            
+            console.log('信件資訊:', {
+                subject,
+                from,
+                snippet: message.snippet,
+                labelIds: message.labelIds
+            });
+            
+            console.log('🎉 所有測試完成！Gmail API 功能正常運作。');
+        } else {
+            console.error('❌ 信件詳情取得失敗:', response.status);
+        }
+    } catch (error) {
+        console.error('❌ 信件詳情錯誤:', error.message);
+    }
+}
+
+// 執行測試
+runGmailApiTest();
+`;
+
+            resultDiv.textContent = testScript;
+            window.generatedScript = testScript; // 儲存到全域變數供複製使用
+        }
+
+        // 複製測試腳本到剪貼板
+        function copyTestScript() {
+            if (window.generatedScript) {
+                navigator.clipboard.writeText(window.generatedScript).then(() => {
+                    alert('✅ 測試腳本已複製到剪貼板！\n\n請在 Chrome Extension 的 console 中貼上並執行。');
+                }).catch(() => {
+                    alert('❌ 複製失敗，請手動複製腳本內容。');
+                });
+            } else {
+                alert('請先點擊「生成測試腳本」按鈕。');
+            }
+        }
+
+        // 模擬 Token 檢查
+        function simulateTokenCheck() {
+            const resultDiv = document.getElementById('simulation-result');
+            resultDiv.style.display = 'block';
+
+            const mockTokenData = {
+                access_token: 'ya29.a0AfH6SMC...(模擬 token)',
+                expires_at: Date.now() + 3600000, // 1小時後過期
+                refresh_token: '1//04...(模擬 refresh token)',
+                scope: ['https://www.googleapis.com/auth/gmail.modify']
+            };
+
+            const expiresIn = Math.floor((mockTokenData.expires_at - Date.now()) / 1000);
+            const isValid = expiresIn > 0;
+
+            const result = {
+                isValid,
+                expiresIn: `${Math.floor(expiresIn / 60)} 分鐘`,
+                tokenType: 'Bearer',
+                scope: mockTokenData.scope
+            };
+
+            resultDiv.innerHTML = `<span class="status ${isValid ? 'success' : 'error'}">SIMULATION</span>\n模擬 Token 檢查結果:\n${JSON.stringify(result, null, 2)}`;
+        }
+
+        // 模擬 API 呼叫
+        function simulateApiCall() {
+            const resultDiv = document.getElementById('simulation-result');
+            resultDiv.style.display = 'block';
+
+            // 模擬 Gmail API 回應
+            const mockApiResponse = {
+                messages: [
+                    { id: 'msg001', threadId: 'thread001' },
+                    { id: 'msg002', threadId: 'thread002' },
+                    { id: 'msg003', threadId: 'thread003' }
+                ],
+                nextPageToken: 'next_page_token',
+                resultSizeEstimate: 1250
+            };
+
+            const result = {
+                success: true,
+                data: mockApiResponse,
+                requestUrl: 'https://gmail.googleapis.com/gmail/v1/users/me/messages',
+                method: 'GET',
+                timestamp: new Date().toISOString()
+            };
+
+            resultDiv.innerHTML = `<span class="status success">SIMULATION</span>\n模擬 API 呼叫結果:\n${JSON.stringify(result, null, 2)}`;
+        }
+
+        // 模擬信件處理
+        function simulateEmailProcessing() {
+            const resultDiv = document.getElementById('simulation-result');
+            resultDiv.style.display = 'block';
+
+            const mockEmail = {
+                id: 'msg001',
+                subject: 'Job Application - Frontend Developer Position',
+                from: 'hr@company.com',
+                fromDomain: 'company.com',
+                date: new Date(),
+                snippet: 'Thank you for your interest in the Frontend Developer position...',
+                isRead: false,
+                labels: ['INBOX', 'IMPORTANT'],
+                hasUnsubscribe: false,
+                category: 'working', // 智慧分類結果
+                importance: 'high'   // 重要性評估
+            };
+
+            const processingSteps = [
+                '✅ 解析信件標頭',
+                '✅ 擷取信件內容',
+                '✅ 智慧分類 (working)',
+                '✅ 重要性評估 (high)',
+                '✅ 退訂連結檢測',
+                '✅ 域名分析',
+                '✅ 資料標準化完成'
+            ];
+
+            const result = {
+                processedEmail: mockEmail,
+                processingSteps,
+                processingTime: '45ms'
+            };
+
+            resultDiv.innerHTML = `<span class="status success">SIMULATION</span>\n模擬信件處理結果:\n${JSON.stringify(result, null, 2)}`;
+        }
+
+        // 頁面載入時顯示說明
+        window.onload = function() {
+            console.log('📧 Gmail API 測試頁面已載入');
+            console.log('💡 提示：要進行實際測試，請在 Chrome Extension 環境中使用生成的測試腳本');
+        };
+    </script>
+</body>
+</html> 
