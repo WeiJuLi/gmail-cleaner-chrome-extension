@@ -37,4 +37,46 @@ router.post('/callback', async (req, res) => {
   }
 });
 
+// 新增 refresh token endpoint
+router.post('/refresh', async (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(400).json({ error: 'Missing refresh token' });
+  }
+
+  try {
+    console.log('🔄 刷新 access token...');
+    
+    const tokenRes = await axios.post(
+      'https://oauth2.googleapis.com/token',
+      new URLSearchParams({
+        refresh_token: refreshToken,
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        grant_type: 'refresh_token',
+      }).toString(),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
+
+    const { access_token, refresh_token, expires_in, scope } = tokenRes.data;
+
+    console.log('✅ Token 刷新成功');
+    
+    return res.json({ 
+      access_token, 
+      refresh_token: refresh_token || refreshToken, // 如果沒有新的 refresh token，使用原有的
+      expires_in,
+      scope
+    });
+  } catch (err) {
+    console.error('❌ Token refresh failed:', err.response?.data || err.message);
+    return res.status(500).json({ error: "Token refresh failed" });
+  }
+});
+
 module.exports = router;

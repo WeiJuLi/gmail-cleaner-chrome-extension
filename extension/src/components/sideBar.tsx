@@ -4,6 +4,7 @@ import SubscriptionsPanel from "./SubscriptionsPanel";
 import ModeSettingsPanel from "./ModeSettingsPanel";
 
 // This is a reusable function to load your Custom Font
+// UI language: English only. Update copy below if localization is added later.
 // format = 'truetype' 參數的預設值
 // 這是 JavaScript 中的模板字串語法: '${fontName}'
 // `` 支援多行, '' 支援單行
@@ -42,7 +43,7 @@ export function loadCustomFont(
 }
 
 const Sidebar: React.FC = () => {
-  // Login
+  // Login state derived from storage keys used by tokenManager/background
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   //Tab <'subscriptions' | 'mode' 裡面只接受這兩種值> 預設 'subscriptions'
@@ -54,21 +55,42 @@ const Sidebar: React.FC = () => {
     loadCustomFont("Dela Gothic One", "fonts/DelaGothicOne-Regular.ttf");
     // keep adding another custon fonts...
 
-    // check wether local storage has access token
-    chrome.storage.local.get(["accessToken"], (result) => {
-      if (result.accessToken) {
-        setIsLoggedIn(true);
-      }
+    // Check if a valid access token exists (must match tokenManager storage keys)
+    chrome.storage.local.get(["gmail_access_token", "gmail_token_expires_at"], (result) => {
+      const hasToken = !!result.gmail_access_token;
+      const expiresAt = result.gmail_token_expires_at ? parseInt(result.gmail_token_expires_at) : 0;
+      const isExpired = expiresAt <= Date.now();
+      
+      console.log('🔐 檢查認證狀態:', {
+        hasToken,
+        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : 'N/A',
+        isExpired
+      });
+      
+      setIsLoggedIn(hasToken && !isExpired);
     });
 
-    // 2. 監聽 storage 當 accessToken 被改變（新增或刪除）時自動更新狀態
+    // 2) Listen for storage changes to keep login UI in sync
     const handleStorageChange = (
       changes: { [key: string]: chrome.storage.StorageChange },
       areaName: string
     ) => {
-      if (areaName === "local" && "accessToken" in changes) {
-        const newValue = changes.accessToken?.newValue;
-        setIsLoggedIn(!!newValue); // 有值 => true，沒值 => false
+      if (areaName === "local" && ("gmail_access_token" in changes || "gmail_token_expires_at" in changes)) {
+        const accessTokenChange = changes.gmail_access_token;
+        const expiresAtChange = changes.gmail_token_expires_at;
+        
+        // 取得最新的值
+        const newToken = accessTokenChange?.newValue;
+        const newExpiresAt = expiresAtChange?.newValue ? parseInt(expiresAtChange.newValue) : 0;
+        const isExpired = newExpiresAt <= Date.now();
+        
+        console.log('🔄 Storage 變更:', {
+          hasToken: !!newToken,
+          expiresAt: newExpiresAt ? new Date(newExpiresAt).toISOString() : 'N/A',
+          isExpired
+        });
+        
+        setIsLoggedIn(!!newToken && !isExpired);
       }
     };
 
@@ -114,7 +136,7 @@ const Sidebar: React.FC = () => {
       {/* Content */}
       {!isLoggedIn ? (
         <div className="login-section">
-          <p>Please login with Google to continue.❤️</p>
+           <p>Please log in with Google to continue. ❤️</p>
           <button className="login-btn" onClick={handleLogin}>
             Login with Google
           </button>
@@ -128,13 +150,13 @@ const Sidebar: React.FC = () => {
               className={`tab ${activeTab === "subscriptions" ? "active" : ""}`}
               onClick={() => setActiveTab("subscriptions")}
             >
-              <span className="tab-label">Subscriptions</span>
+             <span className="tab-label">Subscriptions</span>
             </div>
             <div
               className={`tab ${activeTab === "mode" ? "active" : ""}`}
               onClick={() => setActiveTab("mode")}
             >
-              <span className="tab-label">Mode Settings</span>
+             <span className="tab-label">Mode Settings</span>
             </div>
           </div>
 

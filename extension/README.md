@@ -1,54 +1,20 @@
-# React + TypeScript + Vite
+# Gmail Cleaner Chrome Extension (English)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a Chrome Extension that filters Gmail based on modes (Working, Shopping, Job Hunting), supports an email whitelist, and offers batch cleanup actions.
 
-Currently, two official plugins are available:
+Key docs:
+- Quick usage: `docs/USAGE_GUIDE.md`
+- Mode Settings API: `docs/MODE_SETTINGS_API_GUIDE.md`
+- Type system: `docs/type-definitions-guide.md`
+- Gmail integration summary: `docs/implementation-summary.md`
+- Gmail button troubleshooting: `docs/gmail-button-troubleshooting.md`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Official references:
+- Gmail API: https://developers.google.com/gmail/api
+- OAuth 2.0: https://developers.google.com/identity/protocols/oauth2
+- Chrome Identity API: https://developer.chrome.com/docs/extensions/reference/identity
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Development:
+- Frontend: React + TypeScript + Vite
+- Background service worker and content scripts follow MV3
+- Local backend for OAuth token exchange at `extension/server`
