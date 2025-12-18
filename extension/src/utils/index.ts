@@ -11,12 +11,6 @@ export { ErrorType } from './apiErrorHandler';
 
 export { gmailApi } from './gmailApi';
 
-// Mode 管理和頁面篩選模組
-export { modeManager } from './modeManager';
-export type { ModeType, ModeSettings, AllModeSettings } from './modeManager';
-
-export { gmailPageFilter } from './gmailPageFilter';
-
 // 整合測試與驗證工具
 import { tokenManager } from './tokenManager';
 import { gmailApi } from './gmailApi';

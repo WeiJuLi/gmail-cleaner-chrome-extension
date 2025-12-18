@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./sideBar.css";
 import SubscriptionsPanel from "./SubscriptionsPanel";
-import ModeSettingsPanel from "./ModeSettingsPanel";
 
 // This is a reusable function to load your Custom Font
 // UI language: English only. Update copy below if localization is added later.
@@ -46,10 +45,6 @@ const Sidebar: React.FC = () => {
   // Login state derived from storage keys used by tokenManager/background
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  //Tab <'subscriptions' | 'mode' 裡面只接受這兩種值> 預設 'subscriptions'
-  const [activeTab, setActiveTab] = useState<"subscriptions" | "mode">(
-    "subscriptions"
-  );
 
   useEffect(() => {
     loadCustomFont("Dela Gothic One", "fonts/DelaGothicOne-Regular.ttf");
@@ -143,27 +138,9 @@ const Sidebar: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* Tab Switch */}
-          <div className="tab-switch">
-            <div className={`tab-slider ${activeTab}`}></div>
-            <div
-              className={`tab ${activeTab === "subscriptions" ? "active" : ""}`}
-              onClick={() => setActiveTab("subscriptions")}
-            >
-             <span className="tab-label">Subscriptions</span>
-            </div>
-            <div
-              className={`tab ${activeTab === "mode" ? "active" : ""}`}
-              onClick={() => setActiveTab("mode")}
-            >
-             <span className="tab-label">Mode Settings</span>
-            </div>
-          </div>
-
-          {/* Tab Content */}
+          {/* Content */}
           <div className="tab-content">
-            {activeTab === "subscriptions" && <SubscriptionsPanel />}
-            {activeTab === "mode" && <ModeSettingsPanel />}
+            <SubscriptionsPanel />
           </div>
         </>
       )}
